@@ -41,25 +41,13 @@ class AuthGroups extends ShieldAuthGroups
      * @see https://codeigniter4.github.io/shield/quick_start_guide/using_authorization/#change-available-groups for more info
      */
     public array $groups = [
-        'superadmin' => [
-            'title'       => 'Super Admin',
-            'description' => 'Complete control of the site.',
+        'owner' => [
+            'title'       => 'Owner',
+            'description' => 'Complete control of the system and margin data.',
         ],
-        'admin' => [
-            'title'       => 'Admin',
-            'description' => 'Day to day administrators of the site.',
-        ],
-        'developer' => [
-            'title'       => 'Developer',
-            'description' => 'Site programmers.',
-        ],
-        'user' => [
-            'title'       => 'User',
-            'description' => 'General users of the site. Often customers.',
-        ],
-        'beta' => [
-            'title'       => 'Beta User',
-            'description' => 'Has access to beta-level features.',
+        'staff' => [
+            'title'       => 'Staff',
+            'description' => 'Pasar operations, scanning, and sales only.',
         ],
     ];
 
@@ -72,13 +60,12 @@ class AuthGroups extends ShieldAuthGroups
      * If a permission is not listed here it cannot be used.
      */
     public array $permissions = [
-        'admin.access'        => 'Can access the sites admin area',
-        'admin.settings'      => 'Can access the main site settings',
-        'users.manage-admins' => 'Can manage other admins',
-        'users.create'        => 'Can create new non-admin users',
-        'users.edit'          => 'Can edit existing non-admin users',
-        'users.delete'        => 'Can delete existing non-admin users',
-        'beta.access'         => 'Can access beta-level features',
+        'admin.access'    => 'Can access the admin area',
+        'items.manage'    => 'Can manage inventory (Owner only)',
+        'sales.manage'    => 'Can process sales and scanning',
+        'reports.view'    => 'Can view profit and global transaction history',
+        'users.manage'    => 'Can manage system users',
+        'audit.view'      => 'Can view system audit logs',
     ];
 
     /**
@@ -90,28 +77,16 @@ class AuthGroups extends ShieldAuthGroups
      * This defines group-level permissions.
      */
     public array $matrix = [
-        'superadmin' => [
-            'admin.*',
-            'users.*',
-            'beta.*',
-        ],
-        'admin' => [
+        'owner' => [
             'admin.access',
-            'users.create',
-            'users.edit',
-            'users.delete',
-            'beta.access',
+            'items.manage',
+            'sales.manage',
+            'reports.view',
+            'users.manage',
+            'audit.view',
         ],
-        'developer' => [
-            'admin.access',
-            'admin.settings',
-            'users.create',
-            'users.edit',
-            'beta.access',
-        ],
-        'user' => [],
-        'beta' => [
-            'beta.access',
+        'staff' => [
+            'sales.manage',
         ],
     ];
 }

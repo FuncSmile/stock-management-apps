@@ -4,16 +4,16 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class ItemModel extends Model
+class SalesTransactionModel extends Model
 {
-    protected $table            = 'items';
+    protected $table            = 'sales_transactions';
     protected $primaryKey       = 'id';
-    protected $useAutoIncrement = false;
+    protected $useAutoIncrement = true;
     protected $returnType       = 'array';
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'id', 'sku', 'name', 'base_price', 'mark_price', 'current_stock', 'min_stock', 'qr_code_path'
+        'batch_id', 'user_id', 'item_id', 'qty', 'deal_price', 'total_profit', 'created_at'
     ];
 
     protected bool $allowEmptyInserts = false;
