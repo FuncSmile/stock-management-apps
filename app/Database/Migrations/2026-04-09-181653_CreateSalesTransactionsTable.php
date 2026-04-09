@@ -4,7 +4,7 @@ namespace App\Database\Migrations;
 
 use CodeIgniter\Database\Migration;
 
-class CreateStockTransactionsTable extends Migration
+class CreateSalesTransactionsTable extends Migration
 {
     public function up()
     {
@@ -18,33 +18,39 @@ class CreateStockTransactionsTable extends Migration
             'batch_id' => [
                 'type'       => 'VARCHAR',
                 'constraint' => 50,
-                'null'       => true,
+            ],
+            'user_id' => [
+                'type'       => 'INT',
+                'constraint' => 11,
+                'unsigned'   => true,
             ],
             'item_id' => [
                 'type'       => 'CHAR',
                 'constraint' => 36,
             ],
-            'type' => [
-                'type'       => 'ENUM',
-                'constraint' => ['IN', 'OUT'],
-            ],
-            'quantity' => [
+            'qty' => [
                 'type'       => 'INT',
                 'constraint' => 11,
             ],
+            'deal_price' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '15,2',
+            ],
+            'total_profit' => [
+                'type'       => 'DECIMAL',
+                'constraint' => '15,2',
+            ],
             'created_at' => [
-                'type'    => 'TIMESTAMP',
-                'null'    => true,
-                'default' => null,
+                'type' => 'TIMESTAMP',
+                'null' => true,
             ],
         ]);
         $this->forge->addKey('id', true);
-        $this->forge->addForeignKey('item_id', 'items', 'id', 'CASCADE', 'CASCADE');
-        $this->forge->createTable('stock_transactions');
+        $this->forge->createTable('sales_transactions');
     }
 
     public function down()
     {
-        $this->forge->dropTable('stock_transactions');
+        $this->forge->dropTable('sales_transactions');
     }
 }

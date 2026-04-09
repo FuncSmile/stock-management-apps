@@ -150,6 +150,115 @@ class Items extends BaseController
     }
 
     /**
+     * Get item info by SKU (API helper)
+     */
+    public function info($search)
+    {
+        $itemModel = new ItemModel();
+        // Search by ID (UUID) or SKU
+        $item = $itemModel->where('id', $search)
+                          ->orWhere('sku', $search)
+                          ->first();
+
+        if (!$item) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Item tidak ditemukan'
+            ])->setStatusCode(404);
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'data' => [
+                'id' => $item['id'],
+                'sku' => $item['sku'],
+                'name' => $item['name'],
+                'current_stock' => $item['current_stock']
+            ]
+        ]);
+    }
+
+    /**
+     * Batch update stock (Implementation for Issue #6)
+     */
+    public function batchUpdate()
+    {
+        $json = $this->request->getJSON();
+        
+        if (!$json || !isset($json->items) || empty($json->items)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Data tidak valid atau kosong.'
+            ])->setStatusCode(400);
+        }
+
+        $type = $json->type ?? 'IN';
+        $itemModel = new ItemModel();
+        $db = \Config\Database::connect();
+        
+        $db->transStart();
+
+        $batchId = 'BATCH-' . date('YmdHis') . '-' . strtoupper(bin2hex(random_bytes(2)));
+
+        foreach ($json->items as $itemData) {
+            $sku = $itemData->sku;
+            $qty = (int)$itemData->qty;
+
+            if ($qty <= 0) continue;
+
+            $item = $itemModel->where('sku', $sku)->first();
+            
+            if (!$item) {
+                $db->transRollback();
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => "Barang dengan SKU {$sku} tidak ditemukan."
+                ])->setStatusCode(404);
+            }
+
+            // Calculation
+            $newStock = ($type === 'IN') 
+                ? $item['current_stock'] + $qty 
+                : $item['current_stock'] - $qty;
+
+            if ($type === 'OUT' && $newStock < 0) {
+                $db->transRollback();
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => "Stok untuk {$item['name']} tidak mencukupi (Sisa: {$item['current_stock']})."
+                ])->setStatusCode(400);
+            }
+
+            // Update Item Stock
+            $itemModel->update($item['id'], ['current_stock' => $newStock]);
+
+            // Record Transaction
+            $db->table('stock_transactions')->insert([
+                'batch_id'   => $batchId,
+                'item_id'    => $item['id'],
+                'type'       => $type,
+                'quantity'   => $qty,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Gagal memproses transaksi database.'
+            ])->setStatusCode(500);
+        }
+
+        return $this->response->setJSON([
+            'status' => 'success',
+            'message' => "Berhasil memproses {$type} stok untuk " . count($json->items) . " jenis barang.",
+            'batch_id' => $batchId
+        ]);
+    }
+
+    /**
      * Internal logic for QR generation
      */
     private function _generateQrInternal($id)

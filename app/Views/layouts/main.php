@@ -74,16 +74,15 @@
                     </a>
                 </nav>
 
-                <!-- Sidebar Footer -->
                 <div class="p-4 border-t border-slate-100">
                     <div class="bg-slate-50 rounded-2xl p-4">
                         <div class="flex items-center space-x-3">
-                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold">
-                                JD
+                            <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold uppercase">
+                                <?= substr(auth()->user()->username ?? 'U', 0, 2) ?>
                             </div>
                             <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900 truncate">John Doe</p>
-                                <p class="text-xs text-slate-500 truncate">Administrator</p>
+                                <p class="text-sm font-semibold text-slate-900 truncate"><?= auth()->user()->username ?? 'User' ?></p>
+                                <a href="<?= base_url('logout') ?>" class="text-xs text-rose-500 hover:text-rose-600 font-medium transition-colors">Keluar (Logout)</a>
                             </div>
                         </div>
                     </div>

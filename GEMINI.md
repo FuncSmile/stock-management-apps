@@ -1,103 +1,119 @@
-Sebagai developer yang terbiasa dengan sistem yang terukur, berikut adalah **Technical Specification (TechSpec)** untuk sistem manajemen stok berbasis QR Code menggunakan CodeIgniter 4.
+Ini adalah versi final **Technical Specification** yang telah diintegrasikan dengan sistem **RBAC (Role-Based Access Control)** dan **Audit Logging**. Spesifikasi ini dirancang agar kamu memiliki kontrol penuh sebagai Owner, sementara operasional di pasar tetap cepat dan akuntabel.
 
 ---
 
+# Technical Specification: NexStock QR (Pasar Edition + RBAC)
+
 ## 1. System Overview
-Sistem ini dirancang untuk mengelola inventaris secara *real-time* dengan QR Code sebagai pengidentifikasi unik tiap item. Sistem harus dapat diakses melalui perangkat mobile (untuk scanning) dan desktop (untuk administrasi).
+Sistem manajemen stok dan POS Hybrid berbasis **CodeIgniter 4** untuk UMKM sepatu. Mengintegrasikan **Sequential SKU Scanning** dengan **Negotiated Pricing** dan **Multi-user Accountability**. Sistem membedakan hak akses secara ketat antara Owner dan Staff untuk melindungi data margin keuntungan.
 
 ## 2. Technology Stack
-* **Backend:** CodeIgniter 4.x (PHP 8.1+)
-* **Database:** MySQL 8.0 (mendukung JSON data jika diperlukan)
-* **Frontend:** Tailwind CSS.
-* **Libraries:**
-    * `endroid/qr-code`: QR Code Generation.
-    * `html5-qrcode`: Browser-based QR Scanner.
-    * `dompdf/dompdf`: Untuk cetak label/laporan ke PDF.
+* **Backend:** CodeIgniter 4.x (PHP 8.1+).
+* **Database:** MySQL 8.0.
+* **Auth:** CodeIgniter Shield (Recommended) atau Custom Session-based RBAC.
+* **PWA:** Service Workers untuk reliabilitas di lokasi minim sinyal.
+* **Frontend:** Tailwind CSS, Vanilla JS, Lucide Icons.
 
-## 3. Database Schema
-Kita akan menggunakan normalisasi standar untuk memastikan integritas data stok.
+## 3. Database Schema (Final Optimized)
 
-### Table: `items`
-Menyimpan informasi master barang.
+### Table: `users`
 | Column | Type | Constraints |
 | :--- | :--- | :--- |
-| `id` | UUID / CHAR(36) | Primary Key |
+| `id` | INT | Primary Key, AI |
+| `username` | VARCHAR(50) | Unique |
+| `password` | VARCHAR(255) | Hash |
+| `role` | ENUM('OWNER', 'STAFF') | Default 'STAFF' |
+
+### Table: `items`
+| Column | Type | Constraints |
+| :--- | :--- | :--- |
+| `id` | CHAR(36) | Primary Key (UUID) |
 | `sku` | VARCHAR(50) | Unique, Index |
 | `name` | VARCHAR(255) | Not Null |
+| `base_price` | DECIMAL(15,2) | Harga modal (Owner Only) |
+| `mark_price` | DECIMAL(15,2) | Harga bandrol |
 | `current_stock` | INT | Default 0 |
-| `min_stock` | INT | Default 5 (untuk alert) |
-| `qr_code_path` | VARCHAR(255) | Path file gambar QR |
 
-### Table: `stock_transactions`
-Mencatat setiap pergerakan barang.
+### Table: `sales_transactions`
 | Column | Type | Constraints |
 | :--- | :--- | :--- |
 | `id` | INT | AI, Primary Key |
-| `item_id` | CHAR(36) | Foreign Key -> items(id) |
-| `type` | ENUM('IN', 'OUT') | Not Null |
-| `quantity` | INT | Not Null |
-| `remarks` | TEXT | Keterangan (misal: "Barang Rusak") |
-| `created_at` | TIMESTAMP | Current Timestamp |
+| `batch_id` | VARCHAR(50) | UUID Batch |
+| `user_id` | INT | **FK -> users(id) (Aktor transaksi)** |
+| `item_id` | CHAR(36) | FK -> items(id) |
+| `qty` | INT | Jumlah item |
+| `deal_price` | DECIMAL(15,2) | Harga kesepakatan |
+| `total_profit` | DECIMAL(15,2) | `(deal_price - base_price) * qty` |
+| `created_at` | TIMESTAMP | Default Current |
+
+### Table: `audit_logs`
+| Column | Type | Constraints |
+| :--- | :--- | :--- |
+| `id` | INT | AI, PK |
+| `user_id` | INT | FK -> users(id) |
+| `action` | VARCHAR(255) | Deskripsi (e.g., "Update SKU-01 Stock") |
+| `payload` | JSON | Detail perubahan (Old vs New) |
+| `created_at` | TIMESTAMP | Default Current |
 
 ---
 
-## 4. Key Modules & Logic
+## 4. Key Modules & RBAC Logic
 
-### 4.1. QR Generation Engine
-Sistem akan menggenerate QR Code berdasarkan `id` atau `sku` barang.
-* **Endpoint:** `GET /items/generate-qr/(:segment)`
-* **Logic:**
-    1.  Cek keberadaan ID barang di database.
-    2.  Inisialisasi `endroid/qr-code`.
-    3.  Output direktori: `public/uploads/qr/`.
-    4.  Format penamaan: `{sku}.png`.
+### 4.1. Access Control Matrix
+| Module | Staff | Owner |
+| :--- | :---: | :---: |
+| Scanning & Sales (Pasar) | ✅ | ✅ |
+| History Transaksi (Global) | ❌ | ✅ |
+| Management User & Audit Logs | ❌ | ✅ |
+| View Base Price & Total Profit | ❌ | ✅ |
+| Manual Stock Adjustment | ❌ | ✅ |
 
-### 4.2. Scanning Interface (Mobile Optimized)
-Halaman scanner harus ringan dan mendukung autofocus.
-* **View:** `ScannerView` menggunakan library `html5-qrcode`.
-* **Flow:**
-    1.  User memilih mode (Masuk atau Keluar).
-    2.  Kamera aktif -> Scan QR.
-    3.  Setelah terdeteksi, library melakukan `POST` request ke `/api/stock/update`.
-    4.  Frontend memberikan feedback (Vibrate/Sound) dan menampilkan info barang yang di-scan.
-
-### 4.3. Stock Adjustment Logic (The "Core")
-Proses ini harus menggunakan **Database Transactions** untuk mencegah *race condition*.
+### 4.2. Authenticated Batch Processing (Backend)
+Sistem mencatat siapa yang melakukan scan untuk setiap transaksi.
 
 ```php
-// Pseudo-logic di Controller
-public function updateStock() {
+public function processSale() {
+    $data = $this->request->getJSON();
+    $userId = session()->get('user_id'); // Capture current user session
+    
     $this->db->transStart();
-    
-    // 1. Ambil data dari POST (id_barang, qty, type)
-    // 2. Update table 'items' (decrement/increment current_stock)
-    // 3. Insert ke table 'stock_transactions'
-    
-    $this->db->transComplete();
-    
-    if ($this->db->transStatus() === false) {
-        return $this->response->setJSON(['status' => 'error']);
+    foreach ($data->items as $row) {
+        $item = $this->itemModel->where('sku', $row->sku)->first();
+        $profit = ($row->deal_price - $item['base_price']) * $row->qty;
+
+        // Update Stock
+        $this->itemModel->update($item['id'], [
+            'current_stock' => $item['current_stock'] - $row->qty
+        ]);
+
+        // Insert Transaction with User Accountability
+        $this->salesModel->insert([
+            'batch_id'   => $data->batch_id,
+            'user_id'    => $userId, // Pencatatan user
+            'item_id'    => $item['id'],
+            'qty'        => $row->qty,
+            'deal_price' => $row->deal_price,
+            'total_profit' => $profit
+        ]);
     }
+    $this->db->transComplete();
 }
 ```
 
 ---
 
-## 5. Security & Validation
-* **Authentication:** Menggunakan Shield (CI4 official) atau session-based auth biasa.
-* **Input Validation:** Validasi `quantity` tidak boleh negatif.
-* **Stock Validation:** Untuk transaksi `OUT`, sistem harus mengecek apakah `current_stock >= quantity`. Jika tidak, return error 400.
-* **API Security:** Gunakan CSRF protection untuk setiap request AJAX dari scanner.
+## 5. UI/UX: Role-Based Interface
+* **Staff Interface:** Menu minimalis. Fokus utama adalah tombol besar **"Start Scanning"**. List transaksi hanya menampilkan history hari ini tanpa nominal profit.
+* **Owner Interface:** Dashboard analitik dengan grafik profit, filter performa per karyawan, dan log aktivitas sistem.
+* **Security UI:** Field `base_price` dikosongkan/disensor secara otomatis oleh backend jika `session(role) !== 'OWNER'`.
+
+## 6. Audit & Recovery
+* **Transaction Trail:** Setiap perubahan stok manual di luar modul scan wajib mencatat alasan (misal: "Barang Rusak") ke tabel `audit_logs`.
+* **Anti-Fraud Alert:** Notifikasi otomatis ke Owner jika ada transaksi yang dibatalkan setelah proses scan selesai (mencegah karyawan scan tapi uang tidak masuk laci).
 
 ---
 
-## 6. Deployment Requirements
-* **SSL/HTTPS:** Wajib aktif agar API `getUserMedia` (kamera) pada browser mobile bisa berjalan.
-* **Server:** Shared Hosting/VPS dengan ekstensi PHP `gd`, `intl`, dan `mbstring` aktif.
-* **Storage:** Permission `775` pada folder `writable/` dan `public/uploads/`.
+**Summary Akhir:**
+Dengan TechSpec ini, kamu sudah membangun sistem kelas profesional. Kamu punya **kecepatan scan**, **fleksibilitas nego harga**, dan **keamanan data (RBAC)**. 
 
----
-
-
-
-Apakah struktur ini sudah cukup untuk kamu jadikan acuan *coding*, atau perlu detail tambahan untuk salah satu modulnya?
+Karena TechSpec sudah matang, apakah kita mau mulai eksekusi di **Database Migration** atau membuat **Base Controller** yang sudah include Auth Filter?

@@ -34,6 +34,14 @@ class Filters extends BaseFilters
         'forcehttps'    => ForceHTTPS::class,
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
+        'session'       => \CodeIgniter\Shield\Filters\SessionAuth::class,
+        'tokens'        => \CodeIgniter\Shield\Filters\TokenAuth::class,
+        'chain'         => \CodeIgniter\Shield\Filters\ChainAuth::class,
+        'auth-rates'    => \CodeIgniter\Shield\Filters\AuthRates::class,
+        'group'         => \CodeIgniter\Shield\Filters\GroupFilter::class,
+        'permission'    => \CodeIgniter\Shield\Filters\PermissionFilter::class,
+        'force-reset'   => \CodeIgniter\Shield\Filters\ForcePasswordResetFilter::class,
+        'jwt'           => \CodeIgniter\Shield\Filters\JwtAuth::class,
     ];
 
     /**
@@ -73,7 +81,7 @@ class Filters extends BaseFilters
     public array $globals = [
         'before' => [
             // 'honeypot',
-            // 'csrf',
+            'csrf',
             // 'invalidchars',
         ],
         'after' => [
@@ -106,5 +114,14 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, list<string>>>
      */
-    public array $filters = [];
+    public array $filters = [
+        'session' => [
+            'before' => [
+                'dashboard',
+                'items*',
+                'scan*',
+                'api*',
+            ],
+        ],
+    ];
 }
