@@ -99,8 +99,19 @@
                             <span class="text-sm font-bold text-slate-600"><?= number_format($item['base_price'], 0, ',', '.') ?></span>
                         </td>
                         <td class="px-6 py-5 text-right whitespace-nowrap">
-                            <span class="text-[10px] font-bold text-indigo-400 uppercase mr-1">Rp</span>
-                            <span class="text-sm font-bold text-indigo-600"><?= number_format($item['mark_price'], 0, ',', '.') ?></span>
+                            <?php $isLoss = $item['mark_price'] < $item['base_price']; ?>
+                            <div class="flex flex-col items-end">
+                                <div class="<?= $isLoss ? 'text-rose-600' : 'text-indigo-600' ?>">
+                                    <span class="text-[10px] font-bold <?= $isLoss ? 'text-rose-400' : 'text-indigo-400' ?> uppercase mr-1">Rp</span>
+                                    <span class="text-sm font-bold"><?= number_format($item['mark_price'], 0, ',', '.') ?></span>
+                                </div>
+                                <?php if ($isLoss): ?>
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded-md text-[8px] font-black bg-rose-50 text-rose-600 border border-rose-100 uppercase tracking-tighter mt-1 animate-pulse">
+                                        <svg class="w-2.5 h-2.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                                        Potensi Rugi!
+                                    </span>
+                                <?php endif; ?>
+                            </div>
                         </td>
                         <?php endif; ?>
                         <td class="px-6 py-5 text-center">
