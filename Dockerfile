@@ -1,9 +1,11 @@
-FROM php:8.2-cli-alpine
+FROM php:8.4-cli-alpine
 
 # Install system dependencies
 RUN apk add --no-cache \
     icu-dev \
     libpng-dev \
+    libjpeg-turbo-dev \
+    freetype-dev \
     libzip-dev \
     oniguruma-dev \
     bash \
@@ -11,7 +13,8 @@ RUN apk add --no-cache \
     mysql-client
 
 # Install PHP extensions
-RUN docker-php-ext-install \
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install \
     intl \
     mysqli \
     gd \
@@ -24,5 +27,5 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Set entrypoint
-CMD composer install && php spark serve --host 0.0.0.0
+# Set entrypoint and permissions fix
+CMD composer install && chmod -R 777 writable && php spark serve --host 0.0.0.0
