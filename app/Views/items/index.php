@@ -24,6 +24,29 @@
         </div>
     <?php endif; ?>
 
+    <!-- Search Bar -->
+    <div class="mb-6">
+        <form action="<?= base_url('items') ?>" method="get" class="flex gap-2">
+            <div class="relative flex-1 group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-indigo-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <input type="text" name="search" value="<?= esc($search ?? '') ?>" 
+                    class="block w-full pl-11 pr-12 py-3.5 bg-white border border-slate-100 rounded-2xl text-sm font-medium focus:outline-none focus:ring-4 focus:ring-indigo-50 focus:border-indigo-200 shadow-sm transition-all" 
+                    placeholder="Cari berdasarkan nama atau SKU...">
+                
+                <?php if (!empty($search)): ?>
+                <a href="<?= base_url('items') ?>" class="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-rose-500 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </a>
+                <?php endif; ?>
+            </div>
+            <button type="submit" class="px-6 py-3.5 bg-slate-900 text-white font-bold text-sm rounded-2xl hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-100">
+                Cari
+            </button>
+        </form>
+    </div>
+
     <!-- Table Card -->
     <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden transition-all">
         <div class="overflow-x-auto">

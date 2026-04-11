@@ -11,7 +11,17 @@ class Items extends BaseController
     public function index()
     {
         $itemModel = new ItemModel();
+        
+        $search = $this->request->getGet('search');
+        if ($search) {
+            $itemModel->groupStart()
+                ->like('name', $search)
+                ->orLike('sku', $search)
+                ->groupEnd();
+        }
+        
         $data['items'] = $itemModel->findAll();
+        $data['search'] = $search;
         
         return view('items/index', $data);
     }
