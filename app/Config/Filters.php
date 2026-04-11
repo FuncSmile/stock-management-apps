@@ -117,6 +117,7 @@ class Filters extends BaseFilters
     public array $filters = [
         'session' => [
             'before' => [
+                '/',
                 'dashboard',
                 'items*',
                 'scan*',

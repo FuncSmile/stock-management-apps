@@ -23,9 +23,11 @@ class Items extends BaseController
     public function create()
     {
         $rules = [
-            'sku'       => 'required|is_unique[items.sku]',
-            'name'      => 'required|min_length[3]',
-            'min_stock' => 'required|is_natural',
+            'sku'        => 'required|is_unique[items.sku]',
+            'name'       => 'required|min_length[3]',
+            'base_price' => 'required|numeric',
+            'mark_price' => 'required|numeric',
+            'min_stock'  => 'required|is_natural',
         ];
 
         if (!$this->validate($rules)) {
@@ -47,6 +49,8 @@ class Items extends BaseController
             'id'            => $id,
             'sku'           => $this->request->getPost('sku'),
             'name'          => $this->request->getPost('name'),
+            'base_price'    => $this->request->getPost('base_price'),
+            'mark_price'    => $this->request->getPost('mark_price'),
             'current_stock' => 0,
             'min_stock'     => $this->request->getPost('min_stock'),
         ];
@@ -82,9 +86,11 @@ class Items extends BaseController
         }
 
         $rules = [
-            'sku'       => "required|is_unique[items.sku,id,{$id}]",
-            'name'      => 'required|min_length[3]',
-            'min_stock' => 'required|is_natural',
+            'sku'        => "required|is_unique[items.sku,id,{$id}]",
+            'name'       => 'required|min_length[3]',
+            'base_price' => 'required|numeric',
+            'mark_price' => 'required|numeric',
+            'min_stock'  => 'required|is_natural',
         ];
 
         if (!$this->validate($rules)) {
@@ -92,9 +98,11 @@ class Items extends BaseController
         }
 
         $data = [
-            'sku'       => $this->request->getPost('sku'),
-            'name'      => $this->request->getPost('name'),
-            'min_stock' => $this->request->getPost('min_stock'),
+            'sku'        => $this->request->getPost('sku'),
+            'name'       => $this->request->getPost('name'),
+            'base_price' => $this->request->getPost('base_price'),
+            'mark_price' => $this->request->getPost('mark_price'),
+            'min_stock'  => $this->request->getPost('min_stock'),
         ];
 
         if ($itemModel->update($id, $data)) {

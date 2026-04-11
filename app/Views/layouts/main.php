@@ -53,10 +53,12 @@
 
                 <!-- Navigation Links -->
                 <nav class="flex-1 px-4 space-y-1">
-                    <a href="<?= base_url('dashboard') ?>" class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors bg-indigo-50 text-indigo-700">
+                    <?php if (auth()->user()?->inGroup('owner')): ?>
+                    <a href="<?= base_url('dashboard') ?>" class="flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-colors <?= current_url() == base_url('dashboard') ? 'bg-indigo-50 text-indigo-700' : 'text-slate-600 hover:bg-slate-50 hover:text-indigo-600' ?>">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
                         Dashboard
                     </a>
+                    <?php endif; ?>
                     <a href="<?= base_url('items') ?>" class="flex items-center px-4 py-3 text-sm font-medium text-slate-600 rounded-xl hover:bg-slate-50 hover:text-indigo-600 transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
                         Daftar Barang
@@ -65,24 +67,34 @@
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 17h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
                         Scan QR
                     </a>
+                    <?php if (auth()->user()?->inGroup('owner')): ?>
                     <div class="pt-4 pb-2">
-                        <p class="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Riwayat</p>
+                        <p class="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider">Laporan</p>
                     </div>
                     <a href="<?= base_url('transactions') ?>" class="flex items-center px-4 py-3 text-sm font-medium text-slate-600 rounded-xl hover:bg-slate-50 hover:text-indigo-600 transition-colors">
                         <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                        Mutasi Stok
+                        Transaksi Global
                     </a>
+                    <?php endif; ?>
                 </nav>
 
                 <div class="p-4 border-t border-slate-100">
                     <div class="bg-slate-50 rounded-2xl p-4">
                         <div class="flex items-center space-x-3">
                             <div class="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-bold uppercase">
-                                <?= substr(auth()->user()->username ?? 'U', 0, 2) ?>
+                                <?= substr(auth()->user()?->username ?? 'U', 0, 2) ?>
                             </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-semibold text-slate-900 truncate"><?= auth()->user()->username ?? 'User' ?></p>
-                                <a href="<?= base_url('logout') ?>" class="text-xs text-rose-500 hover:text-rose-600 font-medium transition-colors">Keluar (Logout)</a>
+                             <div class="flex-1">
+                                <p class="text-sm font-bold text-slate-900 leading-none"><?= auth()->user()?->username ?? 'User' ?></p>
+                                <div class="mt-1 flex flex-wrap gap-1">
+                                    <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold <?= auth()->user()?->inGroup('owner') ? 'bg-indigo-100 text-indigo-700' : 'bg-slate-100 text-slate-600' ?> uppercase">
+                                        <?= auth()->user()?->inGroup('owner') ? 'Owner' : 'Staff' ?>
+                                    </span>
+                                    <a href="<?= base_url('logout') ?>" class="text-[10px] text-rose-500 hover:text-rose-600 font-bold uppercase tracking-wider flex items-center">
+                                        <svg class="w-3 h-3 mr-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                                        Keluar
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>

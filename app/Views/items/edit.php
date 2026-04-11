@@ -44,6 +44,27 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div class="space-y-2">
+                    <label for="base_price" class="text-sm font-bold text-slate-700 ml-1">Harga Modal (Rp)</label>
+                    <div class="relative">
+                        <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rp</span>
+                        <input type="number" name="base_price" id="base_price" value="<?= old('base_price', $item['base_price']) ?>"
+                            class="w-full pl-12 pr-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                            placeholder="0" required>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <label for="mark_price" class="text-sm font-bold text-slate-700 ml-1">Harga Jual (Rp)</label>
+                    <div class="relative">
+                        <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">Rp</span>
+                        <input type="number" name="mark_price" id="mark_price" value="<?= old('mark_price', $item['mark_price']) ?>"
+                            class="w-full pl-12 pr-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                            placeholder="0" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-2">
                     <label for="min_stock" class="text-sm font-bold text-slate-700 ml-1">Stok Minimum (Alert)</label>
                     <input type="number" name="min_stock" id="min_stock" value="<?= old('min_stock', $item['min_stock']) ?>"
                         class="w-full px-5 py-3 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"

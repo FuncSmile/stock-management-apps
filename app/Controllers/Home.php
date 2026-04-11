@@ -4,8 +4,17 @@ namespace App\Controllers;
 
 class Home extends BaseController
 {
-    public function index(): string
+    public function index()
     {
+        // Redirect Staff to scanning page if they try to access dashboard
+        if (! auth()->loggedIn()) {
+            return redirect()->to('login');
+        }
+
+        if (! auth()->user()->inGroup('owner')) {
+            return redirect()->to('scan');
+        }
+
         $itemModel = new \App\Models\ItemModel();
         $db = \Config\Database::connect();
         
