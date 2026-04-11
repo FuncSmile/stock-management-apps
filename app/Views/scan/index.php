@@ -336,8 +336,13 @@
                     const result = await response.json();
                     
                     if (result.status === 'success') {
-                        alert(`Berhasil! ${result.message}`);
-                        this.items = [];
+                        if (this.mode === 'SALE') {
+                            // Redirect to receipt page immediately
+                            window.location.href = `${window.location.origin}/sales/receipt/${result.batch_id}`;
+                        } else {
+                            alert(`Berhasil! ${result.message}`);
+                            this.items = [];
+                        }
                     } else {
                         alert(`Gagal: ${result.message}`);
                     }

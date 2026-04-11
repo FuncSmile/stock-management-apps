@@ -22,6 +22,7 @@ $routes->group('items', ['filter' => 'group:owner'], function($routes) {
 $routes->get('scan', 'Scan::index');
 $routes->get('audit', 'Audit::index', ['filter' => 'group:owner']);
 $routes->get('transactions', 'Transactions::index', ['filter' => 'group:owner']);
+$routes->get('sales/receipt/(:segment)', 'Sales::receipt/$1');
 
 $routes->group('api', function($routes) {
     $routes->get('items/info/(:segment)', 'Items::info/$1');
