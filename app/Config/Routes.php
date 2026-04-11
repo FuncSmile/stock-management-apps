@@ -20,6 +20,7 @@ $routes->group('items', ['filter' => 'group:owner'], function($routes) {
 });
 
 $routes->get('scan', 'Scan::index');
+$routes->get('audit', 'Audit::index', ['filter' => 'group:owner']);
 
 $routes->group('api', function($routes) {
     $routes->get('items/info/(:segment)', 'Items::info/$1');

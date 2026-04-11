@@ -13,7 +13,7 @@
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm p-8 h-fit">
+    <div class="lg:col-span-2 bg-white rounded-3xl border border-slate-100 shadow-sm p-8 h-fit" x-data="{ currentStock: <?= $item['current_stock'] ?>, initialStock: <?= $item['current_stock'] ?>, isOwner: <?= auth()->user()->inGroup('owner') ? 'true' : 'false' ?> }">
         <form action="<?= base_url('items/update/' . $item['id']) ?>" method="POST" class="space-y-6">
             <?= csrf_field() ?>
             
@@ -71,10 +71,22 @@
                         required>
                 </div>
                 <div class="space-y-2">
-                    <label class="text-sm font-bold text-slate-400 ml-1">Stok Saat Ini</label>
-                    <input type="text" value="<?= $item['current_stock'] ?>" disabled
-                        class="w-full px-5 py-3 bg-slate-100 border border-slate-100 rounded-2xl text-slate-400 cursor-not-allowed">
+                    <label for="current_stock" class="text-sm font-bold ml-1" :class="isOwner ? 'text-slate-700' : 'text-slate-400'">Stok Saat Ini <?= auth()->user()->inGroup('owner') ? '' : '(Read-only)' ?></label>
+                    <input type="number" name="current_stock" id="current_stock" x-model.number="currentStock"
+                        class="w-full px-5 py-3 border border-slate-100 rounded-2xl transform transition-all duration-300 focus:outline-none"
+                        :class="isOwner ? 'bg-slate-50 focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500' : 'bg-slate-100 text-slate-400 cursor-not-allowed'"
+                        :readonly="!isOwner" required>
                 </div>
+            </div>
+
+            <!-- Adjustment Reason (Only for Owner when stock changes) -->
+            <div x-show="isOwner && currentStock !== initialStock" x-transition.opacity class="space-y-2 p-4 bg-amber-50 rounded-2xl border border-amber-100">
+                <label for="adjustment_reason" class="text-sm font-bold text-amber-800 ml-1">Alasan Perubahan Stok</label>
+                <textarea name="adjustment_reason" id="adjustment_reason" rows="2" 
+                    class="w-full px-5 py-3 bg-white border border-amber-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all text-sm"
+                    placeholder="Contoh: Barang rusak, Koreksi salah input..."
+                    :required="currentStock !== initialStock"></textarea>
+                <p class="text-[10px] text-amber-600 font-medium">* Perubahan stok manual wajib mencantumkan alasan.</p>
             </div>
 
             <div class="pt-4">

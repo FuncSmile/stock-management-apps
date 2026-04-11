@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\ItemModel;
+use App\Models\AuditLogModel;
 use App\Libraries\QrGenerator;
 
 class Items extends BaseController
@@ -93,6 +94,15 @@ class Items extends BaseController
             'min_stock'  => 'required|is_natural',
         ];
 
+        // Add reason validation if user is owner and stock is changing
+        $isOwner = auth()->user()->inGroup('owner');
+        if ($isOwner && $this->request->getPost('current_stock') !== null) {
+            $newStock = (int)$this->request->getPost('current_stock');
+            if ($newStock !== (int)$item['current_stock']) {
+                $rules['adjustment_reason'] = 'required|min_length[3]';
+            }
+        }
+
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
         }
@@ -105,7 +115,27 @@ class Items extends BaseController
             'min_stock'  => $this->request->getPost('min_stock'),
         ];
 
+        // Capture stock update for Owner
+        $stockChanged = false;
+        if ($isOwner && $this->request->getPost('current_stock') !== null) {
+            $newStock = (int)$this->request->getPost('current_stock');
+            if ($newStock !== (int)$item['current_stock']) {
+                $data['current_stock'] = $newStock;
+                $stockChanged = true;
+            }
+        }
+
         if ($itemModel->update($id, $data)) {
+            // Log manual stock adjustment
+            if ($stockChanged) {
+                AuditLogModel::log("Manual Stock Adjustment: {$item['name']}", [
+                    'item_id'   => $id,
+                    'old_stock' => $item['current_stock'],
+                    'new_stock' => $data['current_stock'],
+                    'reason'    => $this->request->getPost('adjustment_reason')
+                ]);
+            }
+
             // Regenerate QR if SKU changed
             if ($item['sku'] !== $data['sku']) {
                 // Delete old QR if exists

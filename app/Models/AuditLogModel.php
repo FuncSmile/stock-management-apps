@@ -45,4 +45,17 @@ class AuditLogModel extends Model
     protected $afterFind      = [];
     protected $beforeDelete   = [];
     protected $afterDelete    = [];
+    /**
+     * Helper method to record audit log
+     */
+    public static function log(string $action, array $payload = [])
+    {
+        $model = new self();
+        return $model->insert([
+            'user_id'    => auth()->id(),
+            'action'     => $action,
+            'payload'    => json_encode($payload),
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+    }
 }
