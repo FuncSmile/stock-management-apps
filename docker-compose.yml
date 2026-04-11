@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: nexstock_app
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+    environment:
+      - CI_ENVIRONMENT=development
+
+  db:
+    image: mysql:8.0
+    container_name: nexstock_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Fagadeligi1910
+      MYSQL_DATABASE: stock_system
+    ports:
+      - "3307:3306"
+    volumes:
+      - nexstock_db_data:/var/lib/mysql
+
+volumes:
+  nexstock_db_data:
