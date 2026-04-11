@@ -9,46 +9,46 @@
         <h1 class="text-2xl font-bold text-slate-900 mb-2">Scanner QR</h1>
         <p class="text-slate-500 text-sm mb-4">Arahkan kamera ke QR Code barang untuk menambah hitungan secara otomatis.</p>
         
-        <div class="flex p-1 bg-slate-100 rounded-xl">
+        <div class="flex p-1 bg-slate-100/80 backdrop-blur-md rounded-2xl mb-4 overflow-x-auto no-scrollbar shadow-inner">
             <button 
                 @click="mode = 'SALE'" 
-                :class="mode === 'SALE' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
-                class="flex-1 flex items-center justify-center py-2.5 px-4 rounded-lg font-semibold transition-all duration-200"
+                :class="mode === 'SALE' ? 'bg-white text-indigo-600 shadow-md scale-[1.02]' : 'text-slate-500 hover:text-slate-700'"
+                class="flex-1 flex items-center justify-center py-3.5 px-3 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-all duration-300 min-w-fit"
             >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                Penjualan
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                Jual
             </button>
             <button 
                 @click="mode = 'IN'" 
-                :class="mode === 'IN' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
-                class="flex-1 flex items-center justify-center py-2.5 px-4 rounded-lg font-semibold transition-all duration-200"
+                :class="mode === 'IN' ? 'bg-white text-emerald-600 shadow-md scale-[1.02]' : 'text-slate-500 hover:text-slate-700'"
+                class="flex-1 flex items-center justify-center py-3.5 px-3 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-all duration-300 min-w-fit"
             >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                Stok Masuk
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                Masuk
             </button>
             <button 
                 @click="mode = 'OUT'" 
-                :class="mode === 'OUT' ? 'bg-white text-rose-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
-                class="flex-1 flex items-center justify-center py-2.5 px-4 rounded-lg font-semibold transition-all duration-200"
+                :class="mode === 'OUT' ? 'bg-white text-rose-600 shadow-md scale-[1.02]' : 'text-slate-500 hover:text-slate-700'"
+                class="flex-1 flex items-center justify-center py-3.5 px-3 rounded-xl font-bold text-[11px] uppercase tracking-wider transition-all duration-300 min-w-fit"
             >
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
-                Stok Keluar
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+                Keluar
             </button>
         </div>
     </div>
 
     <!-- Scanner Window -->
-    <div class="relative bg-black rounded-3xl overflow-hidden shadow-2xl aspect-square mb-6 border-4 transition-all duration-500" :class="{ 'border-indigo-500/20': mode === 'SALE', 'border-emerald-500/20': mode === 'IN', 'border-rose-500/20': mode === 'OUT' }">
+    <div class="relative bg-black rounded-[2.5rem] overflow-hidden shadow-2xl aspect-square mb-6 border-4 transition-all duration-500 ring-8 ring-slate-50" :class="{ 'border-indigo-500/30': mode === 'SALE', 'border-emerald-500/30': mode === 'IN', 'border-rose-500/30': mode === 'OUT' }">
         <div id="reader" class="w-full h-full"></div>
         
         <!-- Scanner Overlay -->
         <div class="absolute inset-0 pointer-events-none flex flex-col items-center justify-center">
-            <div class="w-64 h-64 border-2 border-dashed border-white/50 rounded-2xl relative">
-                <div class="absolute inset-0 bg-white/5 animate-pulse rounded-2xl"></div>
+            <div class="w-3/4 h-3/4 border-2 border-dashed border-white/30 rounded-3xl relative">
+                <div class="absolute inset-0 bg-white/5 animate-pulse rounded-3xl"></div>
                 <!-- Shifting Scanning Line -->
-                <div class="absolute top-0 left-0 right-0 h-1 bg-indigo-500 shadow-[0_0_15px_rgba(99,102,241,0.8)] animate-[scan_2s_linear_infinite]"></div>
+                <div class="absolute top-0 left-0 right-0 h-0.5 bg-white shadow-[0_0_15px_#fff] animate-[scan_2.5s_linear_infinite]"></div>
             </div>
-            <p class="text-white/70 text-xs mt-8 bg-black/40 px-3 py-1.5 rounded-full backdrop-blur-sm">Mendeteksi QR Code secara kontinu...</p>
+            <p class="text-white/50 text-[10px] mt-6 bg-black/40 px-4 py-2 rounded-full backdrop-blur-md uppercase tracking-[0.2em]">Ready to Scan</p>
         </div>
 
         <!-- Success/Error Flash -->
@@ -60,66 +60,75 @@
     </div>
 
     <!-- Scanned Items List -->
-    <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-50 flex items-center justify-between">
-            <h3 class="font-bold text-slate-800">Daftar Scan <span x-show="items.length > 0" class="ml-2 px-2 py-0.5 bg-indigo-100 text-indigo-700 text-xs rounded-full" x-text="items.length"></span></h3>
-            <button @click="clearItems()" x-show="items.length > 0" class="text-xs text-rose-500 hover:text-rose-600 font-medium">Reset</button>
+    <div class="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden mb-24">
+        <div class="px-6 py-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+            <h3 class="font-bold text-slate-800 flex items-center">
+                Daftar Scan 
+                <span x-show="items.length > 0" class="ml-2 px-2.5 py-1 bg-indigo-600 text-white text-[10px] rounded-full animate-bounce" x-text="items.length"></span>
+            </h3>
+            <button @click="clearItems()" x-show="items.length > 0" class="text-[10px] text-rose-500 hover:text-rose-600 font-bold uppercase tracking-widest">Reset</button>
         </div>
 
-        <div class="divide-y divide-slate-50 max-h-80 overflow-y-auto">
+        <div class="divide-y divide-slate-50 max-h-[50vh] overflow-y-auto overscroll-contain">
             <template x-for="(item, index) in items" :key="item.uid">
                 <div 
-                    class="px-6 py-4 flex items-center justify-between transition-colors duration-300"
+                    class="px-5 py-4 flex flex-col space-y-3 transition-colors duration-300"
                     :class="flashItemSku === item.sku ? (mode === 'IN' ? 'bg-emerald-50' : 'bg-rose-50') : ''"
                 >
-                    <div class="flex-1 min-w-0 pr-4">
-                        <p class="text-sm font-bold text-slate-900 truncate" x-text="item.name || 'Memuat...'"></p>
-                        <p class="text-[10px] text-slate-400 font-mono tracking-tight" x-text="item.sku"></p>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <!-- Negotiated Price Input (SALE mode only) -->
-                        <div x-show="mode === 'SALE'" class="relative">
-                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">Rp</span>
-                            <input type="number" x-model.number="item.deal_price" 
-                                class="w-24 pl-7 pr-2 py-1.5 bg-slate-50 border border-slate-100 rounded-lg text-xs font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1 min-w-0 pr-4">
+                            <p class="text-sm font-black text-slate-900 leading-tight" x-text="item.name || 'Memuat...'"></p>
+                            <p class="text-[10px] text-slate-400 font-mono tracking-tighter uppercase" x-text="item.sku"></p>
                         </div>
-                        <div class="flex items-center bg-slate-50 rounded-lg p-1 border border-slate-100">
-                            <button @click="decrement(index)" class="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-colors">
+                        <button @click="removeItem(index)" class="p-2 text-slate-300 hover:text-rose-500 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-1">
+                        <!-- Negotiated Price Input (SALE mode only) -->
+                        <div x-show="mode === 'SALE'" class="flex-1 max-w-[140px]">
+                            <div class="relative">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400">Rp</span>
+                                <input type="number" x-model.number="item.deal_price" 
+                                    class="w-full pl-8 pr-3 py-2.5 bg-slate-100/50 border-none rounded-xl text-xs font-black text-indigo-600 focus:ring-2 focus:ring-indigo-500/20 transition-all">
+                            </div>
+                        </div>
+
+                        <div class="flex items-center bg-slate-100/80 rounded-xl p-1.5 border border-slate-200/50">
+                            <button @click="decrement(index)" class="w-8 h-8 flex items-center justify-center text-slate-500 active:bg-white active:shadow-sm rounded-lg transition-all">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6"></path></svg>
                             </button>
-                            <input type="number" x-model.number="item.qty" class="w-10 text-center bg-transparent border-none p-0 text-sm font-bold focus:ring-0 appearance-none">
-                            <button @click="increment(index)" class="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-colors">
+                            <input type="number" x-model.number="item.qty" class="w-10 text-center bg-transparent border-none p-0 text-sm font-black text-slate-800 focus:ring-0 appearance-none">
+                            <button @click="increment(index)" class="w-8 h-8 flex items-center justify-center text-slate-500 active:bg-white active:shadow-sm rounded-lg transition-all">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v12m6-6H6"></path></svg>
                             </button>
                         </div>
-                        <button @click="removeItem(index)" class="text-slate-300 hover:text-rose-500 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
                     </div>
                 </div>
             </template>
 
-            <div x-show="items.length === 0" class="px-6 py-12 text-center">
-                <div class="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 text-slate-300">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 17h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+            <div x-show="items.length === 0" class="px-6 py-16 text-center">
+                <div class="w-20 h-20 bg-slate-50 rounded-[2rem] flex items-center justify-center mx-auto mb-4 text-slate-200 border-2 border-dashed border-slate-100">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
                 </div>
-                <p class="text-slate-400 text-sm">Belum ada barang yang di-scan.</p>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-widest">Scan barang untuk memuliai</p>
             </div>
         </div>
     </div>
 
-    <!-- Sync Button -->
-    <div class="mt-8">
+    <!-- Floating Sync Button -->
+    <div class="fixed bottom-6 left-6 right-6 lg:relative lg:bottom-0 lg:left-0 lg:right-0 lg:mt-8 z-20">
         <button 
             @click="submitBatch()" 
             :disabled="items.length === 0 || loading"
-            class="w-full py-4 px-6 rounded-2xl shadow-lg shadow-indigo-100 flex items-center justify-center font-bold transition-all transform active:scale-[0.98]"
-            :class="items.length === 0 ? 'bg-slate-200 text-slate-400 cursor-not-allowed' : 'bg-indigo-600 text-white hover:bg-indigo-700'"
+            class="w-full py-5 px-6 rounded-3xl shadow-2xl shadow-indigo-200 flex items-center justify-center font-black uppercase tracking-widest transition-all transform active:scale-[0.95]"
+            :class="items.length === 0 ? 'bg-slate-200 text-slate-400 cursor-not-allowed shadow-none' : 'bg-indigo-600 text-white hover:bg-indigo-700'"
         >
             <template x-if="!loading">
                 <div class="flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                    <span x-text="mode === 'SALE' ? 'Selesaikan Transaksi (Nota Berlangsung)' : 'Simpan Batch Perubahan'"></span>
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span x-text="mode === 'SALE' ? 'Selesaikan Nota' : 'Simpan Batch'"></span>
                 </div>
             </template>
             <template x-if="loading">
@@ -134,17 +143,20 @@
 
 <style>
 @keyframes scan {
-    0% { top: 0%; opacity: 0; }
+    0% { top: 10%; opacity: 0; }
     20% { opacity: 1; }
     80% { opacity: 1; }
-    100% { top: 100%; opacity: 0; }
+    100% { top: 90%; opacity: 0; }
 }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
+    function scannerApp() {
         return {
             mode: '<?= auth()->user()->inGroup('owner') ? 'IN' : 'SALE' ?>', 
             items: [],
