@@ -297,7 +297,7 @@
                         headers: {
                             'Content-Type': 'application/json',
                             'X-Requested-With': 'XMLHttpRequest',
-                            [csrfToken]: csrfHash
+                            'X-CSRF-TOKEN': csrfHash
                         },
                         body: JSON.stringify({
                             type: this.mode,
