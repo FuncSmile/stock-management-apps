@@ -11,6 +11,14 @@
         
         <div class="flex p-1 bg-slate-100 rounded-xl">
             <button 
+                @click="mode = 'SALE'" 
+                :class="mode === 'SALE' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
+                class="flex-1 flex items-center justify-center py-2.5 px-4 rounded-lg font-semibold transition-all duration-200"
+            >
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                Penjualan
+            </button>
+            <button 
                 @click="mode = 'IN'" 
                 :class="mode === 'IN' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'"
                 class="flex-1 flex items-center justify-center py-2.5 px-4 rounded-lg font-semibold transition-all duration-200"
@@ -30,7 +38,7 @@
     </div>
 
     <!-- Scanner Window -->
-    <div class="relative bg-black rounded-3xl overflow-hidden shadow-2xl aspect-square mb-6 border-4" :class="mode === 'IN' ? 'border-emerald-500/20' : 'border-rose-500/20'">
+    <div class="relative bg-black rounded-3xl overflow-hidden shadow-2xl aspect-square mb-6 border-4 transition-all duration-500" :class="{ 'border-indigo-500/20': mode === 'SALE', 'border-emerald-500/20': mode === 'IN', 'border-rose-500/20': mode === 'OUT' }">
         <div id="reader" class="w-full h-full"></div>
         
         <!-- Scanner Overlay -->
@@ -66,9 +74,15 @@
                 >
                     <div class="flex-1 min-w-0 pr-4">
                         <p class="text-sm font-bold text-slate-900 truncate" x-text="item.name || 'Memuat...'"></p>
-                        <p class="text-xs text-slate-500 font-mono" x-text="item.sku"></p>
+                        <p class="text-[10px] text-slate-400 font-mono tracking-tight" x-text="item.sku"></p>
                     </div>
                     <div class="flex items-center space-x-3">
+                        <!-- Negotiated Price Input (SALE mode only) -->
+                        <div x-show="mode === 'SALE'" class="relative">
+                            <span class="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-400">Rp</span>
+                            <input type="number" x-model.number="item.deal_price" 
+                                class="w-24 pl-7 pr-2 py-1.5 bg-slate-50 border border-slate-100 rounded-lg text-xs font-bold focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                        </div>
                         <div class="flex items-center bg-slate-50 rounded-lg p-1 border border-slate-100">
                             <button @click="decrement(index)" class="w-7 h-7 flex items-center justify-center text-slate-500 hover:text-indigo-600 transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6"></path></svg>
@@ -105,7 +119,7 @@
             <template x-if="!loading">
                 <div class="flex items-center">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                    <span>Simpan Batch Perubahan</span>
+                    <span x-text="mode === 'SALE' ? 'Selesaikan Transaksi (Nota Berlangsung)' : 'Simpan Batch Perubahan'"></span>
                 </div>
             </template>
             <template x-if="loading">
@@ -131,9 +145,8 @@
 <?= $this->section('scripts') ?>
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script>
-    function scannerApp() {
         return {
-            mode: 'IN', // IN or OUT
+            mode: '<?= auth()->user()->inGroup('owner') ? 'IN' : 'SALE' ?>', 
             items: [],
             loading: false,
             flashSuccess: false,
@@ -191,7 +204,8 @@
                         originalScan: decodedText,
                         sku: decodedText,
                         name: null,
-                        qty: 1
+                        qty: 1,
+                        deal_price: 0
                     };
                     this.items.unshift(newItem);
                     this.triggerFlashItem(decodedText);
@@ -212,6 +226,7 @@
                         if (result.status === 'success') {
                             this.items[index].name = result.data.name;
                             this.items[index].sku = result.data.sku; // Update to actual SKU
+                            this.items[index].deal_price = result.data.mark_price; // Default to mark price
                         } else {
                             // Item not found in DB
                             this.items[index].name = "Barang tidak terdaftar";
@@ -292,7 +307,8 @@
                 const csrfHash = document.getElementById('csrf_token').value;
                 
                 try {
-                    const response = await fetch(`${window.location.origin}/api/stock/batch-update`, {
+                    const endpoint = this.mode === 'SALE' ? '/api/sales/process' : '/api/stock/batch-update';
+                    const response = await fetch(`${window.location.origin}${endpoint}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',

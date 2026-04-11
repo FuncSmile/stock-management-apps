@@ -211,7 +211,8 @@ class Items extends BaseController
                 'id' => $item['id'],
                 'sku' => $item['sku'],
                 'name' => $item['name'],
-                'current_stock' => $item['current_stock']
+                'current_stock' => $item['current_stock'],
+                'mark_price' => $item['mark_price']
             ]
         ]);
     }

@@ -39,7 +39,15 @@ class Sales extends BaseController
         $salesModel = new SalesTransactionModel();
         $db = \Config\Database::connect();
 
-        $batchId = $json->batch_id ?? 'SALE-' . date('YmdHis') . '-' . strtoupper(bin2hex(random_bytes(2)));
+        // Generate human-readable Invoice ID: NS-YYYYMMDD-XXX
+        $todayPrefix = 'NS-' . date('Ymd') . '-';
+        $countToday = $db->table('sales_transactions')
+                         ->select('DISTINCT(batch_id)')
+                         ->like('batch_id', $todayPrefix, 'after')
+                         ->countAllResults();
+        
+        $nextSequence = str_pad($countToday + 1, 3, '0', STR_PAD_LEFT);
+        $batchId = $json->batch_id ?? ($todayPrefix . $nextSequence);
 
         $db->transStart();
 
